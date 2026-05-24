@@ -1,0 +1,296 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  DOTNET_VERSION: "8.0.x"
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+
+  # ════════════════════════════════════════════════════════
+  #  JOB 1 — Build all projects
+  # ════════════════════════════════════════════════════════
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore microservices-testing-architecture.sln
+
+      - name: Build (Release)
+        run: dotnet build microservices-testing-architecture.sln -c Release --no-restore
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-
+
+  # ════════════════════════════════════════════════════════
+  #  JOB 2 — Contract Tests (no external dependencies)
+  #  Runs in parallel with api-tests after build succeeds.
+  # ════════════════════════════════════════════════════════
+  contract-tests:
+    name: Contract Tests (Pact)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Run consumer tests (generates pact JSON)
+        run: dotnet test tests/ContractTests/ContractTests.csproj
+               --filter "FullyQualifiedName~Consumer"
+               --logger "trx;LogFileName=consumer-results.trx"
+               --results-directory ./test-results/contract
+               -c Release
+
+      - name: Run provider verification (reads pact JSON)
+        run: dotnet test tests/ContractTests/ContractTests.csproj
+               --filter "FullyQualifiedName~Provider"
+               --logger "trx;LogFileName=provider-results.trx"
+               --results-directory ./test-results/contract
+               -c Release
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-test-results
+          path: ./test-results/contract/*.trx
+
+      - name: Publish test summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Contract Tests
+          path: ./test-results/contract/*.trx
+          reporter: dotnet-trx
+
+  # ════════════════════════════════════════════════════════
+  #  JOB 3 — API Tests (requires full docker-compose stack)
+  # ════════════════════════════════════════════════════════
+  api-tests:
+    name: API Tests (RestSharp)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Start infrastructure + services
+        run: |
+          docker compose -f infra/docker-compose.yml up -d --build
+          echo "Waiting for services to be healthy..."
+          timeout 120 bash -c 'until docker compose -f infra/docker-compose.yml ps | grep -v "Exit\|starting"; do sleep 5; done'
+          sleep 15
+
+      - name: Run API tests
+        env:
+          USER_SERVICE_URL:    http://localhost:5001
+          ORDER_SERVICE_URL:   http://localhost:5002
+          PAYMENT_SERVICE_URL: http://localhost:5003
+          NOTIFY_SERVICE_URL:  http://localhost:5004
+        run: dotnet test tests/ApiTests/ApiTests.csproj
+               --logger "trx;LogFileName=api-results.trx"
+               --results-directory ./test-results/api
+               -c Release
+
+      - name: Dump service logs on failure
+        if: failure()
+        run: docker compose -f infra/docker-compose.yml logs
+
+      - name: Stop infrastructure
+        if: always()
+        run: docker compose -f infra/docker-compose.yml down -v
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results
+          path: ./test-results/api/*.trx
+
+      - name: Publish test summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: API Tests
+          path: ./test-results/api/*.trx
+          reporter: dotnet-trx
+
+  # ════════════════════════════════════════════════════════
+  #  JOB 4 — Integration Tests (Testcontainers spins SQL Server)
+  #  No docker-compose needed — fully self-contained.
+  # ════════════════════════════════════════════════════════
+  integration-tests:
+    name: Integration Tests (Testcontainers)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Run integration tests
+        run: dotnet test tests/IntegrationTests/IntegrationTests.csproj
+               --logger "trx;LogFileName=integration-results.trx"
+               --results-directory ./test-results/integration
+               -c Release
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: ./test-results/integration/*.trx
+
+      - name: Publish test summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Integration Tests
+          path: ./test-results/integration/*.trx
+          reporter: dotnet-trx
+
+  # ════════════════════════════════════════════════════════
+  #  JOB 5 — Event Tests (Kafka via docker-compose)
+  # ════════════════════════════════════════════════════════
+  event-tests:
+    name: Event Tests (Kafka)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Start Kafka only
+        run: |
+          docker compose -f infra/docker-compose.yml up -d kafka kafka-init
+          echo "Waiting for Kafka to be healthy..."
+          timeout 90 bash -c 'until docker inspect kafka --format="{{.State.Health.Status}}" | grep healthy; do sleep 5; done'
+
+      - name: Run event tests
+        env:
+          KAFKA_BOOTSTRAP_SERVERS: localhost:9094
+        run: dotnet test tests/EventTests/EventTests.csproj
+               --logger "trx;LogFileName=event-results.trx"
+               --results-directory ./test-results/event
+               -c Release
+
+      - name: Stop Kafka
+        if: always()
+        run: docker compose -f infra/docker-compose.yml down -v
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: event-test-results
+          path: ./test-results/event/*.trx
+
+      - name: Publish test summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Event Tests
+          path: ./test-results/event/*.trx
+          reporter: dotnet-trx
+
+  # ════════════════════════════════════════════════════════
+  #  JOB 6 — E2E Tests (full stack, all services up)
+  #  Quality gate: only runs after all preceding test jobs pass.
+  # ════════════════════════════════════════════════════════
+  e2e-tests:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: [contract-tests, api-tests, integration-tests, event-tests]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build E2E test project
+        run: dotnet build tests/E2eTests/E2eTests.csproj -c Release
+
+      - name: Install Playwright browsers
+        run: dotnet run --project tests/E2eTests/E2eTests.csproj -- install chromium 2>/dev/null || true
+
+      - name: Start full stack
+        run: |
+          docker compose -f infra/docker-compose.yml up -d --build
+          echo "Waiting for all services to be healthy..."
+          timeout 180 bash -c '
+            until curl -sf http://localhost:5001/swagger/index.html &&
+                  curl -sf http://localhost:5002/swagger/index.html &&
+                  curl -sf http://localhost:5003/swagger/index.html &&
+                  curl -sf http://localhost:5004/swagger/index.html; do
+              echo "Services not ready yet, retrying..."; sleep 5
+            done
+          '
+
+      - name: Run E2E tests
+        env:
+          USER_SERVICE_URL:    http://localhost:5001
+          ORDER_SERVICE_URL:   http://localhost:5002
+          PAYMENT_SERVICE_URL: http://localhost:5003
+          NOTIFY_SERVICE_URL:  http://localhost:5004
+        run: dotnet test tests/E2eTests/E2eTests.csproj
+               --logger "trx;LogFileName=e2e-results.trx"
+               --results-directory ./test-results/e2e
+               -c Release
+
+      - name: Dump all service logs on failure
+        if: failure()
+        run: docker compose -f infra/docker-compose.yml logs
+
+      - name: Stop full stack
+        if: always()
+        run: docker compose -f infra/docker-compose.yml down -v
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: ./test-results/e2e/*.trx
+
+      - name: Publish test summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: E2E Tests
+          path: ./test-results/e2e/*.trx
+          reporter: dotnet-trx

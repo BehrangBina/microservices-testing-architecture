@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OrderCreatedEvent",
+  "description": "Published to Kafka topic 'order-created' when an order is successfully created.",
+  "type": "object",
+  "required": ["orderId", "userId", "productName", "amount", "createdAt"],
+  "additionalProperties": false,
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the order."
+    },
+    "userId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifier of the user who placed the order."
+    },
+    "productName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "Name of the product ordered."
+    },
+    "amount": {
+      "type": "number",
+      "minimum": 0.01,
+      "description": "Order amount in the system's base currency."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the order was created."
+    }
+  }
+}

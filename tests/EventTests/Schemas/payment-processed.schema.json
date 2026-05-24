@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PaymentProcessedEvent",
+  "description": "Published to Kafka topic 'payment-processed' when a payment is successfully processed.",
+  "type": "object",
+  "required": ["paymentId", "orderId", "amount", "status", "processedAt"],
+  "additionalProperties": false,
+  "properties": {
+    "paymentId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the payment."
+    },
+    "orderId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifier of the order this payment relates to."
+    },
+    "amount": {
+      "type": "number",
+      "minimum": 0.01,
+      "description": "Payment amount."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Processed", "Failed", "Refunded"],
+      "description": "Payment status."
+    },
+    "processedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the payment was processed."
+    }
+  }
+}
