@@ -19,12 +19,12 @@ namespace ContractTests.Provider;
 /// Uses WebApplicationFactory to spin up UserService in-process with an EF Core
 /// in-memory database seeded with known test data.
 /// </summary>
-public class UserProviderTests : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+public class UserProviderTests : IClassFixture<WebApplicationFactory<UserService.Program>>, IDisposable
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly WebApplicationFactory<UserService.Program> _factory;
     private readonly ITestOutputHelper _output;
 
-    public UserProviderTests(WebApplicationFactory<Program> factory, ITestOutputHelper output)
+    public UserProviderTests(WebApplicationFactory<UserService.Program> factory, ITestOutputHelper output)
     {
         _output = output;
 

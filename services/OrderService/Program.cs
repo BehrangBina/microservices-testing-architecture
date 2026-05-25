@@ -2,30 +2,32 @@ using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
 using OrderService.Producers;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace OrderService;
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<OrderDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddSingleton<IOrderEventProducer, OrderEventProducer>();
-
-var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
+public class Program
 {
-    var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
-    db.Database.EnsureCreated();
-}
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-app.UseSwagger();
-app.UseSwaggerUI();
-app.MapControllers();
-app.Run();
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+        builder.Services.AddDbContext<OrderDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Services.AddSingleton<IOrderEventProducer, OrderEventProducer>();
 
-namespace OrderService
-{
-    // Exposed for WebApplicationFactory in integration tests
-    public class Program { }
+        var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+            db.Database.EnsureCreated();
+        }
+
+        app.UseSwagger();
+        app.UseSwaggerUI();
+        app.MapControllers();
+        app.Run();
+    }
 }

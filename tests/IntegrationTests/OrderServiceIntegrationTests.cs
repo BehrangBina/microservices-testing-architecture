@@ -22,13 +22,13 @@ namespace IntegrationTests;
 [Collection("SqlServer")]
 public class OrderServiceIntegrationTests : IDisposable
 {
-    private readonly WebApplicationFactory<global::OrderService.Program> _factory;
+    private readonly WebApplicationFactory<OrderService.Program> _factory;
     private readonly HttpClient _client;
     private static readonly JsonSerializerOptions JsonOpts = new(JsonSerializerDefaults.Web);
 
     public OrderServiceIntegrationTests(SqlServerFixture sqlFixture)
     {
-        _factory = new WebApplicationFactory<global::OrderService.Program>()
+        _factory = new WebApplicationFactory<OrderService.Program>()
             .WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(services =>

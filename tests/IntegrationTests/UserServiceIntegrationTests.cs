@@ -20,13 +20,13 @@ namespace IntegrationTests;
 [Collection("SqlServer")]
 public class UserServiceIntegrationTests : IDisposable
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly WebApplicationFactory<UserService.Program> _factory;
     private readonly HttpClient _client;
     private static readonly JsonSerializerOptions JsonOpts = new(JsonSerializerDefaults.Web);
 
     public UserServiceIntegrationTests(SqlServerFixture sqlFixture)
     {
-        _factory = new WebApplicationFactory<Program>()
+        _factory = new WebApplicationFactory<UserService.Program>()
             .WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(services =>

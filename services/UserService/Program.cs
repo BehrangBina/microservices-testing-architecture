@@ -1,27 +1,32 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.Data;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace UserService;
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<UserDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-var app = builder.Build();
-
-// Auto-create schema on startup (idempotent for demo; use migrations for production)
-using (var scope = app.Services.CreateScope())
+public class Program
 {
-    var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
-    db.Database.EnsureCreated();
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+        builder.Services.AddDbContext<UserDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        var app = builder.Build();
+
+        // Auto-create schema on startup (idempotent for demo; use migrations for production)
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
+            db.Database.EnsureCreated();
+        }
+
+        app.UseSwagger();
+        app.UseSwaggerUI();
+        app.MapControllers();
+        app.Run();
+    }
 }
-
-app.UseSwagger();
-app.UseSwaggerUI();
-app.MapControllers();
-app.Run();
-
-// Exposed for WebApplicationFactory in integration/contract tests
-public partial class Program { }
