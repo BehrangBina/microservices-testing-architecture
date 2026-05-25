@@ -1,0 +1,62 @@
+# Build outputs
+bin/
+obj/
+out/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+nuget.config.local
+project.lock.json
+project.fragment.lock.json
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+.vscode/settings.json
+
+# Rider
+.idea/
+*.sln.iml
+
+# Test results & coverage
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+coverage-report/
+lcov.info
+
+# Pact broker (keep pact files but ignore broker cache)
+tests/ContractTests/pacts/.pact-broker-cache/
+
+# Logs
+*.log
+logs/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Secrets / environment
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+secrets.json
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Playwright
+playwright-report/
+test-results/

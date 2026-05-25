@@ -24,4 +24,8 @@ app.UseSwaggerUI();
 app.MapControllers();
 app.Run();
 
-public partial class Program { }
+namespace OrderService
+{
+    // Exposed for WebApplicationFactory in integration tests
+    public class Program { }
+}
