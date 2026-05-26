@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
 using OrderService.Producers;
 
 namespace OrderService;
 
-public class Program
+public interface IOrderServiceMarker { }
+
+public class Program : IOrderServiceMarker
 {
     public static void Main(string[] args)
     {

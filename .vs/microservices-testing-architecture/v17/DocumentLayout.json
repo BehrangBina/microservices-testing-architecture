@@ -1,7 +1,36 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Projects\\microservices-testing-architecture\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000002}|tests\\ContractTests\\ContractTests.csproj|c:\\projects\\microservices-testing-architecture\\tests\\contracttests\\provider\\userprovidertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000002}|tests\\ContractTests\\ContractTests.csproj|solutionrelative:tests\\contracttests\\provider\\userprovidertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAAAAAAA-0000-0000-0000-000000000001}|services\\UserService\\UserService.csproj|c:\\projects\\microservices-testing-architecture\\services\\userservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAAAAAAA-0000-0000-0000-000000000001}|services\\UserService\\UserService.csproj|solutionrelative:services\\userservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAAAAAAA-0000-0000-0000-000000000002}|services\\OrderService\\OrderService.csproj|c:\\projects\\microservices-testing-architecture\\services\\orderservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAAAAAAA-0000-0000-0000-000000000002}|services\\OrderService\\OrderService.csproj|solutionrelative:services\\orderservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000004}|tests\\IntegrationTests\\IntegrationTests.csproj|c:\\projects\\microservices-testing-architecture\\tests\\integrationtests\\integrationtests.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000004}|tests\\IntegrationTests\\IntegrationTests.csproj|solutionrelative:tests\\integrationtests\\integrationtests.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000004}|tests\\IntegrationTests\\IntegrationTests.csproj|c:\\projects\\microservices-testing-architecture\\tests\\integrationtests\\userserviceintegrationtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000004}|tests\\IntegrationTests\\IntegrationTests.csproj|solutionrelative:tests\\integrationtests\\userserviceintegrationtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000004}|tests\\IntegrationTests\\IntegrationTests.csproj|c:\\projects\\microservices-testing-architecture\\tests\\integrationtests\\orderserviceintegrationtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000004}|tests\\IntegrationTests\\IntegrationTests.csproj|solutionrelative:tests\\integrationtests\\orderserviceintegrationtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000004}|tests\\IntegrationTests\\IntegrationTests.csproj|c:\\projects\\microservices-testing-architecture\\tests\\integrationtests\\testdataseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000004}|tests\\IntegrationTests\\IntegrationTests.csproj|solutionrelative:tests\\integrationtests\\testdataseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,8 +38,99 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 6,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "TestDataSeeder.cs",
+              "DocumentMoniker": "c:\\Projects\\microservices-testing-architecture\\tests\\IntegrationTests\\TestDataSeeder.cs",
+              "RelativeDocumentMoniker": "tests\\IntegrationTests\\TestDataSeeder.cs",
+              "ToolTip": "c:\\Projects\\microservices-testing-architecture\\tests\\IntegrationTests\\TestDataSeeder.cs",
+              "RelativeToolTip": "tests\\IntegrationTests\\TestDataSeeder.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAABRwAMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T12:16:05.666Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "OrderServiceIntegrationTests.cs",
+              "DocumentMoniker": "c:\\Projects\\microservices-testing-architecture\\tests\\IntegrationTests\\OrderServiceIntegrationTests.cs",
+              "RelativeDocumentMoniker": "tests\\IntegrationTests\\OrderServiceIntegrationTests.cs",
+              "ToolTip": "c:\\Projects\\microservices-testing-architecture\\tests\\IntegrationTests\\OrderServiceIntegrationTests.cs",
+              "RelativeToolTip": "tests\\IntegrationTests\\OrderServiceIntegrationTests.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAIBZwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T12:15:08.252Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "UserServiceIntegrationTests.cs",
+              "DocumentMoniker": "c:\\Projects\\microservices-testing-architecture\\tests\\IntegrationTests\\UserServiceIntegrationTests.cs",
+              "RelativeDocumentMoniker": "tests\\IntegrationTests\\UserServiceIntegrationTests.cs",
+              "ToolTip": "c:\\Projects\\microservices-testing-architecture\\tests\\IntegrationTests\\UserServiceIntegrationTests.cs",
+              "RelativeToolTip": "tests\\IntegrationTests\\UserServiceIntegrationTests.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAMBdwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T12:15:07.838Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IntegrationTests",
+              "DocumentMoniker": "c:\\Projects\\microservices-testing-architecture\\tests\\IntegrationTests\\IntegrationTests.csproj",
+              "RelativeDocumentMoniker": "tests\\IntegrationTests\\IntegrationTests.csproj",
+              "ToolTip": "c:\\Projects\\microservices-testing-architecture\\tests\\IntegrationTests\\IntegrationTests.csproj",
+              "RelativeToolTip": "tests\\IntegrationTests\\IntegrationTests.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAABBwB4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-05-26T12:14:45.648Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "c:\\Projects\\microservices-testing-architecture\\services\\OrderService\\Program.cs",
+              "RelativeDocumentMoniker": "services\\OrderService\\Program.cs",
+              "ToolTip": "c:\\Projects\\microservices-testing-architecture\\services\\OrderService\\Program.cs",
+              "RelativeToolTip": "services\\OrderService\\Program.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAABBwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T12:11:48.342Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "c:\\Projects\\microservices-testing-architecture\\services\\UserService\\Program.cs",
+              "RelativeDocumentMoniker": "services\\UserService\\Program.cs",
+              "ToolTip": "c:\\Projects\\microservices-testing-architecture\\services\\UserService\\Program.cs",
+              "RelativeToolTip": "services\\UserService\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T12:11:47.638Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UserProviderTests.cs",
+              "DocumentMoniker": "c:\\Projects\\microservices-testing-architecture\\tests\\ContractTests\\Provider\\UserProviderTests.cs",
+              "RelativeDocumentMoniker": "tests\\ContractTests\\Provider\\UserProviderTests.cs",
+              "ToolTip": "c:\\Projects\\microservices-testing-architecture\\tests\\ContractTests\\Provider\\UserProviderTests.cs",
+              "RelativeToolTip": "tests\\ContractTests\\Provider\\UserProviderTests.cs",
+              "ViewState": "AgIAAE4AAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T11:21:47.728Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"

@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using UserService.Data;
 
 namespace UserService;
 
-public class Program
+public interface IUserServiceMarker { }
+
+public class Program : IUserServiceMarker
 {
     public static void Main(string[] args)
     {
