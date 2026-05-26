@@ -4,6 +4,7 @@ using System.Text.Json;
 using FluentAssertions;
 using IntegrationTests.Fixtures;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using OrderService.Data;
@@ -37,8 +38,9 @@ public class OrderServiceIntegrationTests : IDisposable
                     var dbDescriptor = services.SingleOrDefault(d =>
                         d.ServiceType == typeof(DbContextOptions<OrderDbContext>));
                     if (dbDescriptor is not null) services.Remove(dbDescriptor);
+                    var csb = new SqlConnectionStringBuilder(sqlFixture.ConnectionString) { InitialCatalog = "OrderServiceTests" };
                     services.AddDbContext<OrderDbContext>(opt =>
-                        opt.UseSqlServer(sqlFixture.ConnectionString));
+                        opt.UseSqlServer(csb.ConnectionString));
 
                     // Replace Kafka producer with a no-op so tests don't require Kafka
                     var producerDescriptor = services.SingleOrDefault(d =>

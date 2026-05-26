@@ -53,7 +53,7 @@ public class UserProviderTests : IClassFixture<WebApplicationFactory<UserService
                         Id = new Guid("11111111-1111-1111-1111-111111111111"),
                         Name = "Alice",
                         Email = "alice@example.com",
-                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                        CreatedAt = DateTime.SpecifyKind(new DateTime(2024, 1, 1, 0, 0, 0), DateTimeKind.Utc)
                     });
                     db.SaveChanges();
                 }
@@ -73,7 +73,11 @@ public class UserProviderTests : IClassFixture<WebApplicationFactory<UserService
             $"Pact file not found at {pactFile}. Run OrderConsumerTests first to generate it.");
 
         using var server = _factory.Server;
-        var verifier = new PactVerifier("user-service", new PactVerifierConfig());
+        var config = new PactVerifierConfig
+        {
+            LogLevel = PactLogLevel.Debug
+        };
+        var verifier = new PactVerifier("user-service", config);
 
         verifier
             .WithHttpEndpoint(server.BaseAddress)

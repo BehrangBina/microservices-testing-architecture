@@ -4,6 +4,7 @@ using System.Text.Json;
 using FluentAssertions;
 using IntegrationTests.Fixtures;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using UserService.Data;
@@ -36,8 +37,9 @@ public class UserServiceIntegrationTests : IDisposable
                         d.ServiceType == typeof(DbContextOptions<UserDbContext>));
                     if (descriptor is not null) services.Remove(descriptor);
 
+                    var csb = new SqlConnectionStringBuilder(sqlFixture.ConnectionString) { InitialCatalog = "UserServiceTests" };
                     services.AddDbContext<UserDbContext>(opt =>
-                        opt.UseSqlServer(sqlFixture.ConnectionString));
+                        opt.UseSqlServer(csb.ConnectionString));
                 });
             });
 
