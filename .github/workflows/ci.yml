@@ -7,6 +7,11 @@ on:
     branches: [main]
   workflow_dispatch:  # Allow manual trigger
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 env:
   DOTNET_VERSION: "8.0.x"
   DOTNET_NOLOGO: true
@@ -86,12 +91,13 @@ jobs:
           path: ./test-results/contract/*.trx
 
       - name: Publish test summary
-        if: always()
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: dorny/test-reporter@v1
         with:
           name: Contract Tests
           path: ./test-results/contract/*.trx
           reporter: dotnet-trx
+          fail-on-empty: false
 
   # ════════════════════════════════════════════════════════
   #  JOB 3 — API Tests (requires full docker-compose stack)
@@ -142,12 +148,13 @@ jobs:
           path: ./test-results/api/*.trx
 
       - name: Publish test summary
-        if: always()
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: dorny/test-reporter@v1
         with:
           name: API Tests
           path: ./test-results/api/*.trx
           reporter: dotnet-trx
+          fail-on-empty: false
 
   # ════════════════════════════════════════════════════════
   #  JOB 4 — Integration Tests (Testcontainers spins SQL Server)
@@ -179,12 +186,13 @@ jobs:
           path: ./test-results/integration/*.trx
 
       - name: Publish test summary
-        if: always()
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: dorny/test-reporter@v1
         with:
           name: Integration Tests
           path: ./test-results/integration/*.trx
           reporter: dotnet-trx
+          fail-on-empty: false
 
   # ════════════════════════════════════════════════════════
   #  JOB 5 — Event Tests (Kafka via docker-compose)
@@ -227,12 +235,13 @@ jobs:
           path: ./test-results/event/*.trx
 
       - name: Publish test summary
-        if: always()
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: dorny/test-reporter@v1
         with:
           name: Event Tests
           path: ./test-results/event/*.trx
           reporter: dotnet-trx
+          fail-on-empty: false
 
   # ════════════════════════════════════════════════════════
   #  JOB 6 — E2E Tests (full stack, all services up)
@@ -296,9 +305,10 @@ jobs:
           path: ./test-results/e2e/*.trx
 
       - name: Publish test summary
-        if: always()
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: dorny/test-reporter@v1
         with:
           name: E2E Tests
           path: ./test-results/e2e/*.trx
           reporter: dotnet-trx
+          fail-on-empty: false
