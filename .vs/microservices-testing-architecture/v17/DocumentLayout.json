@@ -29,6 +29,14 @@
     {
       "AbsoluteMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000004}|tests\\IntegrationTests\\IntegrationTests.csproj|c:\\projects\\microservices-testing-architecture\\tests\\integrationtests\\testdataseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BBBBBBBB-0000-0000-0000-000000000004}|tests\\IntegrationTests\\IntegrationTests.csproj|solutionrelative:tests\\integrationtests\\testdataseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|c:\\Projects\\microservices-testing-architecture\\.github\\workflows\\ci.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.github\\workflows\\ci.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|c:\\Projects\\microservices-testing-architecture\\docs\\github-actions-troubleshooting.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:docs\\github-actions-troubleshooting.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,8 +46,34 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 8,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "github-actions-troubleshooting.md",
+              "DocumentMoniker": "c:\\Projects\\microservices-testing-architecture\\docs\\github-actions-troubleshooting.md",
+              "RelativeDocumentMoniker": "docs\\github-actions-troubleshooting.md",
+              "ToolTip": "c:\\Projects\\microservices-testing-architecture\\docs\\github-actions-troubleshooting.md",
+              "RelativeToolTip": "docs\\github-actions-troubleshooting.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-05-26T13:13:09.985Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ci.yml",
+              "DocumentMoniker": "c:\\Projects\\microservices-testing-architecture\\.github\\workflows\\ci.yml",
+              "RelativeDocumentMoniker": ".github\\workflows\\ci.yml",
+              "ToolTip": "c:\\Projects\\microservices-testing-architecture\\.github\\workflows\\ci.yml",
+              "RelativeToolTip": ".github\\workflows\\ci.yml",
+              "ViewState": "AgIAADcAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2026-05-26T13:12:30.524Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 6,
