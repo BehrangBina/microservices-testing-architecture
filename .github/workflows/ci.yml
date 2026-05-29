@@ -107,6 +107,7 @@ jobs:
     name: API Tests (RestSharp)
     runs-on: ubuntu-latest
     needs: build
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -118,9 +119,15 @@ jobs:
       - name: Start infrastructure + services
         run: |
           docker compose -f infra/docker-compose.yml up -d --build
-          echo "Waiting for services to be healthy..."
-          timeout 120 bash -c 'until docker compose -f infra/docker-compose.yml ps | grep -v "Exit\|starting"; do sleep 5; done'
-          sleep 15
+          echo "Waiting for all services to be healthy..."
+          timeout 180 bash -c '
+            until curl -sf http://localhost:5001/swagger/index.html &&
+                  curl -sf http://localhost:5002/swagger/index.html &&
+                  curl -sf http://localhost:5003/swagger/index.html &&
+                  curl -sf http://localhost:5004/swagger/index.html; do
+              echo "Services not ready yet, retrying..."; sleep 5
+            done
+          '
 
       - name: Run API tests
         env:
