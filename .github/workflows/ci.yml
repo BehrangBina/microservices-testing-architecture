@@ -120,12 +120,29 @@ jobs:
         run: |
           docker compose -f infra/docker-compose.yml up -d --build
           echo "Waiting for all services to be healthy..."
-          timeout 180 bash -c '
-            until curl -sf http://localhost:5001/swagger/index.html &&
-                  curl -sf http://localhost:5002/swagger/index.html &&
-                  curl -sf http://localhost:5003/swagger/index.html &&
-                  curl -sf http://localhost:5004/swagger/index.html; do
-              echo "Services not ready yet, retrying..."; sleep 5
+          timeout 420 bash -c '
+            while true; do
+              all_ready=true
+
+              for url in \
+                http://localhost:5001/swagger/index.html \
+                http://localhost:5002/swagger/index.html \
+                http://localhost:5003/swagger/index.html \
+                http://localhost:5004/swagger/index.html; do
+                code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || true)
+                if [ "$code" != "200" ]; then
+                  all_ready=false
+                  echo "Not ready: $url (HTTP $code)"
+                fi
+              done
+
+              if [ "$all_ready" = true ]; then
+                echo "All services are ready."
+                break
+              fi
+
+              echo "Services not ready yet, retrying..."
+              sleep 5
             done
           '
 
@@ -142,7 +159,9 @@ jobs:
 
       - name: Dump service logs on failure
         if: failure()
-        run: docker compose -f infra/docker-compose.yml logs
+        run: |
+          docker compose -f infra/docker-compose.yml ps
+          docker compose -f infra/docker-compose.yml logs
 
       - name: Stop infrastructure
         if: always()
