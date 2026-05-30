@@ -42,10 +42,11 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list > /dev/null 2>&1"]
       interval: 10s
-      retries: 10
-      start_period: 30s
+      timeout: 15s
+      retries: 15
+      start_period: 45s
 
   # ─── Kafka topic initialiser (runs once then exits) ────────────────────────────
   kafka-init:
