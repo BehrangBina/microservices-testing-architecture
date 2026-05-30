@@ -37,7 +37,7 @@ public class PaymentProcessedEventTests : IClassFixture<KafkaTestFixture>
             Value = JsonSerializer.Serialize(evt, JsonOpts)
         });
 
-        var result = consumer.Consume(TimeSpan.FromSeconds(10));
+        var result = ConsumeByKey(consumer, evt.orderId.ToString(), TimeSpan.FromSeconds(10));
         consumer.Close();
 
         result.Should().NotBeNull();
@@ -73,11 +73,36 @@ public class PaymentProcessedEventTests : IClassFixture<KafkaTestFixture>
 
         using var consumer = _kafka.CreateConsumer($"status-test-{Guid.NewGuid():N}");
         consumer.Subscribe(_kafka.PaymentProcessedTopic);
-        var result = consumer.Consume(TimeSpan.FromSeconds(10));
+        var result = ConsumeByKey(consumer, orderId.ToString(), TimeSpan.FromSeconds(10));
         consumer.Close();
 
         var consumed = JsonSerializer.Deserialize<PaymentProcessedDto>(result.Message.Value, JsonOpts)!;
         consumed.Status.Should().Be(status);
+    }
+
+    private static ConsumeResult<string, string> ConsumeByKey(
+        IConsumer<string, string> consumer,
+        string expectedKey,
+        TimeSpan timeout)
+    {
+        var deadline = DateTime.UtcNow.Add(timeout);
+
+        while (DateTime.UtcNow < deadline)
+        {
+            var remaining = deadline - DateTime.UtcNow;
+            if (remaining <= TimeSpan.Zero)
+            {
+                break;
+            }
+
+            var result = consumer.Consume(remaining);
+            if (result is not null && result.Message.Key == expectedKey)
+            {
+                return result;
+            }
+        }
+
+        throw new Xunit.Sdk.XunitException($"Did not consume message with expected key '{expectedKey}' within {timeout.TotalSeconds:0}s.");
     }
 
     private record PaymentProcessedDto(Guid PaymentId, Guid OrderId, decimal Amount, string Status, DateTime ProcessedAt);

@@ -40,8 +40,8 @@ public class OrderCreatedEventTests : IClassFixture<KafkaTestFixture>
             Value = JsonSerializer.Serialize(evt, JsonOpts)
         });
 
-        // Act — consume (with 10s timeout)
-        var result = consumer.Consume(TimeSpan.FromSeconds(10));
+        // Act — consume matching message (with 10s timeout)
+        var result = ConsumeByKey(consumer, evt.orderId.ToString(), TimeSpan.FromSeconds(10));
         consumer.Close();
 
         // Assert
@@ -77,11 +77,36 @@ public class OrderCreatedEventTests : IClassFixture<KafkaTestFixture>
 
         using var consumer = _kafka.CreateConsumer($"key-test-{Guid.NewGuid():N}");
         consumer.Subscribe(_kafka.OrderCreatedTopic);
-        var result = consumer.Consume(TimeSpan.FromSeconds(10));
+        var result = ConsumeByKey(consumer, orderId.ToString(), TimeSpan.FromSeconds(10));
         consumer.Close();
 
         result.Message.Key.Should().Be(orderId.ToString(),
             "Kafka message key must equal orderId for correct partition routing");
+    }
+
+    private static ConsumeResult<string, string> ConsumeByKey(
+        IConsumer<string, string> consumer,
+        string expectedKey,
+        TimeSpan timeout)
+    {
+        var deadline = DateTime.UtcNow.Add(timeout);
+
+        while (DateTime.UtcNow < deadline)
+        {
+            var remaining = deadline - DateTime.UtcNow;
+            if (remaining <= TimeSpan.Zero)
+            {
+                break;
+            }
+
+            var result = consumer.Consume(remaining);
+            if (result is not null && result.Message.Key == expectedKey)
+            {
+                return result;
+            }
+        }
+
+        throw new Xunit.Sdk.XunitException($"Did not consume message with expected key '{expectedKey}' within {timeout.TotalSeconds:0}s.");
     }
 
     private record OrderCreatedDto(Guid OrderId, Guid UserId, string ProductName, decimal Amount, DateTime CreatedAt);
