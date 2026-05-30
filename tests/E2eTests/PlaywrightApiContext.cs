@@ -14,10 +14,10 @@ public sealed class PlaywrightApiContext : IAsyncDisposable
     private readonly IPlaywright _playwright;
     private IAPIRequestContext? _context;
 
-    public string UserServiceUrl    { get; } = Env("USER_SERVICE_URL",    "http://localhost:5001");
-    public string OrderServiceUrl   { get; } = Env("ORDER_SERVICE_URL",   "http://localhost:5002");
+    public string UserServiceUrl { get; } = Env("USER_SERVICE_URL", "http://localhost:5001");
+    public string OrderServiceUrl { get; } = Env("ORDER_SERVICE_URL", "http://localhost:5002");
     public string PaymentServiceUrl { get; } = Env("PAYMENT_SERVICE_URL", "http://localhost:5003");
-    public string NotifyServiceUrl  { get; } = Env("NOTIFY_SERVICE_URL",  "http://localhost:5004");
+    public string NotifyServiceUrl { get; } = Env("NOTIFY_SERVICE_URL", "http://localhost:5004");
 
     private PlaywrightApiContext(IPlaywright playwright) => _playwright = playwright;
 
@@ -37,7 +37,7 @@ public sealed class PlaywrightApiContext : IAsyncDisposable
         return ctx;
     }
 
-    public Task<IAPIResponse> GetAsync(string url)    => _context!.GetAsync(url);
+    public Task<IAPIResponse> GetAsync(string url) => _context!.GetAsync(url);
     public Task<IAPIResponse> PostAsync(string url, object body) =>
         _context!.PostAsync(url, new APIRequestContextOptions { DataObject = body });
 

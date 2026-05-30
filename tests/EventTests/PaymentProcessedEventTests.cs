@@ -1,6 +1,6 @@
-using System.Text.Json;
 using Confluent.Kafka;
 using FluentAssertions;
+using System.Text.Json;
 using Xunit;
 
 namespace EventTests;
@@ -20,10 +20,10 @@ public class PaymentProcessedEventTests : IClassFixture<KafkaTestFixture>
     {
         var evt = new
         {
-            paymentId   = Guid.NewGuid(),
-            orderId     = Guid.NewGuid(),
-            amount      = 149.99m,
-            status      = "Processed",
+            paymentId = Guid.NewGuid(),
+            orderId = Guid.NewGuid(),
+            amount = 149.99m,
+            status = "Processed",
             processedAt = DateTime.UtcNow
         };
 
@@ -33,7 +33,7 @@ public class PaymentProcessedEventTests : IClassFixture<KafkaTestFixture>
 
         await producer.ProduceAsync(_kafka.PaymentProcessedTopic, new Message<string, string>
         {
-            Key   = evt.orderId.ToString(),
+            Key = evt.orderId.ToString(),
             Value = JsonSerializer.Serialize(evt, JsonOpts)
         });
 
@@ -57,9 +57,9 @@ public class PaymentProcessedEventTests : IClassFixture<KafkaTestFixture>
         var orderId = Guid.NewGuid();
         var payload = JsonSerializer.Serialize(new
         {
-            paymentId   = Guid.NewGuid(),
+            paymentId = Guid.NewGuid(),
             orderId,
-            amount      = 10.00m,
+            amount = 10.00m,
             status,
             processedAt = DateTime.UtcNow
         }, JsonOpts);
@@ -67,7 +67,7 @@ public class PaymentProcessedEventTests : IClassFixture<KafkaTestFixture>
         using var producer = _kafka.CreateProducer();
         await producer.ProduceAsync(_kafka.PaymentProcessedTopic, new Message<string, string>
         {
-            Key   = orderId.ToString(),
+            Key = orderId.ToString(),
             Value = payload
         });
 

@@ -1,7 +1,7 @@
-using System.Net;
-using System.Text.Json;
 using FluentAssertions;
 using RestSharp;
+using System.Net;
+using System.Text.Json;
 using Xunit;
 
 namespace ApiTests;

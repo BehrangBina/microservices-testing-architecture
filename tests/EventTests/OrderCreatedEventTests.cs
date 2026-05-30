@@ -1,6 +1,6 @@
-using System.Text.Json;
 using Confluent.Kafka;
 using FluentAssertions;
+using System.Text.Json;
 using Xunit;
 
 namespace EventTests;
@@ -22,11 +22,11 @@ public class OrderCreatedEventTests : IClassFixture<KafkaTestFixture>
         // Arrange
         var evt = new
         {
-            orderId     = Guid.NewGuid(),
-            userId      = Guid.NewGuid(),
+            orderId = Guid.NewGuid(),
+            userId = Guid.NewGuid(),
             productName = "Wireless Keyboard",
-            amount      = 89.99m,
-            createdAt   = DateTime.UtcNow
+            amount = 89.99m,
+            createdAt = DateTime.UtcNow
         };
 
         using var producer = _kafka.CreateProducer();
@@ -36,7 +36,7 @@ public class OrderCreatedEventTests : IClassFixture<KafkaTestFixture>
         // Act — produce
         await producer.ProduceAsync(_kafka.OrderCreatedTopic, new Message<string, string>
         {
-            Key   = evt.orderId.ToString(),
+            Key = evt.orderId.ToString(),
             Value = JsonSerializer.Serialize(evt, JsonOpts)
         });
 
@@ -62,16 +62,16 @@ public class OrderCreatedEventTests : IClassFixture<KafkaTestFixture>
         var payload = JsonSerializer.Serialize(new
         {
             orderId,
-            userId      = Guid.NewGuid(),
+            userId = Guid.NewGuid(),
             productName = "Monitor",
-            amount      = 349.00m,
-            createdAt   = DateTime.UtcNow
+            amount = 349.00m,
+            createdAt = DateTime.UtcNow
         }, JsonOpts);
 
         using var producer = _kafka.CreateProducer();
         await producer.ProduceAsync(_kafka.OrderCreatedTopic, new Message<string, string>
         {
-            Key   = orderId.ToString(),
+            Key = orderId.ToString(),
             Value = payload
         });
 

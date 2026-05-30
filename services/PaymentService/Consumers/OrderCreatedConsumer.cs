@@ -1,10 +1,10 @@
-using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using PaymentService.Data;
 using PaymentService.Events;
 using PaymentService.Models;
 using PaymentService.Producers;
+using System.Text.Json;
 
 namespace PaymentService.Consumers;
 

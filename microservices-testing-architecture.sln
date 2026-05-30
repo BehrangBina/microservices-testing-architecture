@@ -26,9 +26,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E2eTests", "tests\E2eTests\E2eTests.csproj", "{BBBBBBBB-0000-0000-0000-000000000005}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E1FEB29D-8C50-4771-A664-5CC673DFC293}"
-	ProjectSection(SolutionItems) = preProject
-		log.txt = log.txt
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

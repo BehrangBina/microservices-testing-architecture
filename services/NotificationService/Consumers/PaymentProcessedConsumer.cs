@@ -1,7 +1,7 @@
-using System.Text.Json;
 using Confluent.Kafka;
 using NotificationService.Data;
 using NotificationService.Models;
+using System.Text.Json;
 
 namespace NotificationService.Consumers;
 

@@ -20,7 +20,7 @@ public class KafkaTestFixture : IAsyncLifetime
 
     public string TopicPrefix { get; } = $"test-{Guid.NewGuid():N}";
 
-    public string OrderCreatedTopic   => $"{TopicPrefix}-order-created";
+    public string OrderCreatedTopic => $"{TopicPrefix}-order-created";
     public string PaymentProcessedTopic => $"{TopicPrefix}-payment-processed";
 
     private IAdminClient? _adminClient;

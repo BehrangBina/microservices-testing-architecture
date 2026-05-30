@@ -1,5 +1,5 @@
-using UserService.Models;
 using UserService.Data;
+using UserService.Models;
 
 namespace IntegrationTests;
 
@@ -12,7 +12,7 @@ public static class TestDataSeeder
     {
         var user = new User
         {
-            Name  = name  ?? $"Test User {Guid.NewGuid():N}",
+            Name = name ?? $"Test User {Guid.NewGuid():N}",
             Email = email ?? $"seed+{Guid.NewGuid():N}@test.com"
         };
         db.Users.Add(user);
@@ -28,9 +28,9 @@ public static class TestDataSeeder
     {
         var order = new OrderService.Models.Order
         {
-            UserId      = userId      ?? Guid.NewGuid(),
+            UserId = userId ?? Guid.NewGuid(),
             ProductName = productName ?? $"Seeded Product {Guid.NewGuid():N}",
-            Amount      = amount
+            Amount = amount
         };
         db.Orders.Add(order);
         await db.SaveChangesAsync();

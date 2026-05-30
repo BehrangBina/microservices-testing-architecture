@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
 using FluentAssertions;
 using IntegrationTests.Fixtures;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -9,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using OrderService.Data;
 using OrderService.Producers;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Xunit;
 
 namespace IntegrationTests;
@@ -87,13 +87,13 @@ public class OrderServiceIntegrationTests : IDisposable
     public async Task GetOrdersByUserId_ReturnsOnlyMatchingOrders()
     {
         var targetUserId = Guid.NewGuid();
-        var otherUserId  = Guid.NewGuid();
+        var otherUserId = Guid.NewGuid();
 
         await _client.PostAsJsonAsync("orders", new { userId = targetUserId, productName = "Mouse", amount = 39.99m });
-        await _client.PostAsJsonAsync("orders", new { userId = otherUserId,  productName = "Pad",   amount = 15.00m });
+        await _client.PostAsJsonAsync("orders", new { userId = otherUserId, productName = "Pad", amount = 15.00m });
 
         var response = await _client.GetAsync($"orders?userId={targetUserId}");
-        var orders   = await response.Content.ReadFromJsonAsync<OrderDto[]>(JsonOpts);
+        var orders = await response.Content.ReadFromJsonAsync<OrderDto[]>(JsonOpts);
 
         orders.Should().NotBeNullOrEmpty();
         orders!.Should().OnlyContain(o => o.UserId == targetUserId);

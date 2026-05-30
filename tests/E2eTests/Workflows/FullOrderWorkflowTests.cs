@@ -1,5 +1,5 @@
-using System.Text.Json;
 using FluentAssertions;
+using System.Text.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -30,7 +30,7 @@ public class FullOrderWorkflowTests : IAsyncLifetime
     public FullOrderWorkflowTests(ITestOutputHelper output) => _output = output;
 
     public async Task InitializeAsync() => _api = await PlaywrightApiContext.CreateAsync();
-    public async Task DisposeAsync()    => await _api.DisposeAsync();
+    public async Task DisposeAsync() => await _api.DisposeAsync();
 
     [Fact]
     public async Task FullOrderWorkflow_CreatesPaymentAndNotifications_EndToEnd()
@@ -39,7 +39,7 @@ public class FullOrderWorkflowTests : IAsyncLifetime
         _output.WriteLine("Step 1: Creating user...");
         var userResponse = await _api.PostAsync($"{_api.UserServiceUrl}/users", new
         {
-            name  = $"E2E User {Guid.NewGuid():N}",
+            name = $"E2E User {Guid.NewGuid():N}",
             email = $"e2e+{Guid.NewGuid():N}@test.com"
         });
 
@@ -51,9 +51,9 @@ public class FullOrderWorkflowTests : IAsyncLifetime
         _output.WriteLine("Step 2: Creating order...");
         var orderResponse = await _api.PostAsync($"{_api.OrderServiceUrl}/orders", new
         {
-            userId      = user.Id,
+            userId = user.Id,
             productName = "Ergonomic Chair",
-            amount      = 449.00m
+            amount = 449.00m
         });
 
         orderResponse.Status.Should().Be(201, "order creation must return 201 Created");
@@ -69,8 +69,8 @@ public class FullOrderWorkflowTests : IAsyncLifetime
                 if (resp.Status != 200) return null;
                 return JsonSerializer.Deserialize<PaymentDto>(await resp.TextAsync(), JsonOpts);
             },
-            timeout:     TimeSpan.FromSeconds(15),
-            interval:    TimeSpan.FromMilliseconds(500),
+            timeout: TimeSpan.FromSeconds(15),
+            interval: TimeSpan.FromMilliseconds(500),
             failMessage: $"PaymentService did not create a payment for OrderId {order.Id} within 15s");
 
         payment.OrderId.Should().Be(order.Id);
@@ -88,7 +88,7 @@ public class FullOrderWorkflowTests : IAsyncLifetime
                 var notifications = JsonSerializer.Deserialize<NotificationDto[]>(await resp.TextAsync(), JsonOpts)!;
                 return notifications.Length > 0;
             },
-            timeout:     TimeSpan.FromSeconds(15),
+            timeout: TimeSpan.FromSeconds(15),
             failMessage: $"NotificationService did not log OrderCreated for OrderId {order.Id} within 15s");
 
         _output.WriteLine("  OrderCreated notification confirmed.");
@@ -104,7 +104,7 @@ public class FullOrderWorkflowTests : IAsyncLifetime
                 var notifications = JsonSerializer.Deserialize<NotificationDto[]>(await resp.TextAsync(), JsonOpts)!;
                 return notifications.Length > 0;
             },
-            timeout:     TimeSpan.FromSeconds(15),
+            timeout: TimeSpan.FromSeconds(15),
             failMessage: $"NotificationService did not log PaymentProcessed for OrderId {order.Id} within 15s");
 
         _output.WriteLine("  PaymentProcessed notification confirmed.");
@@ -118,9 +118,9 @@ public class FullOrderWorkflowTests : IAsyncLifetime
         // This confirms the API layer accepts any valid UUID.
         var response = await _api.PostAsync($"{_api.OrderServiceUrl}/orders", new
         {
-            userId      = Guid.NewGuid(),
+            userId = Guid.NewGuid(),
             productName = "Unknown User Product",
-            amount      = 19.99m
+            amount = 19.99m
         });
 
         response.Status.Should().Be(201,

@@ -1,6 +1,6 @@
-using System.Text.Json;
 using FluentAssertions;
 using NJsonSchema;
+using System.Text.Json;
 using Xunit;
 
 namespace EventTests;
@@ -27,11 +27,11 @@ public class SchemaValidationTests
 
         var payload = new
         {
-            orderId     = Guid.NewGuid(),
-            userId      = Guid.NewGuid(),
+            orderId = Guid.NewGuid(),
+            userId = Guid.NewGuid(),
             productName = "Gaming Mouse",
-            amount      = 59.99,
-            createdAt   = "2024-06-01T12:00:00Z"
+            amount = 59.99,
+            createdAt = "2024-06-01T12:00:00Z"
         };
 
         var errors = schema.Validate(JsonSerializer.Serialize(payload,
@@ -49,10 +49,10 @@ public class SchemaValidationTests
         // Missing 'amount' — a required field
         var invalid = new
         {
-            orderId     = Guid.NewGuid(),
-            userId      = Guid.NewGuid(),
+            orderId = Guid.NewGuid(),
+            userId = Guid.NewGuid(),
             productName = "Headset",
-            createdAt   = "2024-06-01T12:00:00Z"
+            createdAt = "2024-06-01T12:00:00Z"
         };
 
         var errors = schema.Validate(JsonSerializer.Serialize(invalid,
@@ -90,10 +90,10 @@ public class SchemaValidationTests
 
         var payload = new
         {
-            paymentId   = Guid.NewGuid(),
-            orderId     = Guid.NewGuid(),
-            amount      = 149.99,
-            status      = "Processed",
+            paymentId = Guid.NewGuid(),
+            orderId = Guid.NewGuid(),
+            amount = 149.99,
+            status = "Processed",
             processedAt = "2024-06-01T12:05:00Z"
         };
 

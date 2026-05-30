@@ -14,13 +14,13 @@ public static class PollingHelper
     /// </summary>
     public static async Task<T> WaitForAsync<T>(
         Func<Task<T?>> condition,
-        TimeSpan? timeout  = null,
+        TimeSpan? timeout = null,
         TimeSpan? interval = null,
         string failMessage = "Condition was not met within the timeout.")
         where T : class
     {
         var deadline = DateTime.UtcNow + (timeout ?? TimeSpan.FromSeconds(10));
-        var poll     = interval ?? TimeSpan.FromMilliseconds(500);
+        var poll = interval ?? TimeSpan.FromMilliseconds(500);
 
         while (DateTime.UtcNow < deadline)
         {
@@ -37,12 +37,12 @@ public static class PollingHelper
     /// </summary>
     public static async Task WaitForTrueAsync(
         Func<Task<bool>> condition,
-        TimeSpan? timeout  = null,
+        TimeSpan? timeout = null,
         TimeSpan? interval = null,
         string failMessage = "Condition was not met within the timeout.")
     {
         var deadline = DateTime.UtcNow + (timeout ?? TimeSpan.FromSeconds(10));
-        var poll     = interval ?? TimeSpan.FromMilliseconds(500);
+        var poll = interval ?? TimeSpan.FromMilliseconds(500);
 
         while (DateTime.UtcNow < deadline)
         {

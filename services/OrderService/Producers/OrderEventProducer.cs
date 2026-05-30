@@ -1,6 +1,6 @@
-using System.Text.Json;
 using Confluent.Kafka;
 using OrderService.Events;
+using System.Text.Json;
 
 namespace OrderService.Producers;
 

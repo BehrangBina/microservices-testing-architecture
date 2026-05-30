@@ -1,7 +1,7 @@
-using System.Net;
-using System.Text.Json;
 using PactNet;
 using PactNet.Matchers;
+using System.Net;
+using System.Text.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -51,9 +51,9 @@ public class OrderConsumerTests
             .WithHeader("Content-Type", "application/json; charset=utf-8")
             .WithJsonBody(new
             {
-                id     = Match.Type(userId.ToString()),
-                name   = Match.Type("Alice"),
-                email  = Match.Regex("alice@example.com", @"^[^@]+@[^@]+\.[^@]+$"),
+                id = Match.Type(userId.ToString()),
+                name = Match.Type("Alice"),
+                email = Match.Regex("alice@example.com", @"^[^@]+@[^@]+\.[^@]+$"),
                 createdAt = Match.Type("2024-01-01T00:00:00Z")
             });
 
