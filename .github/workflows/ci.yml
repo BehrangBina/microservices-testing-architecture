@@ -83,6 +83,7 @@ jobs:
                --logger "trx;LogFileName=provider-results.trx"
                --results-directory ./test-results/contract
                -c Release
+               --no-build
 
       - name: Upload test results
         if: always()
@@ -243,7 +244,9 @@ jobs:
         run: |
           docker compose -f infra/docker-compose.yml up -d kafka kafka-init
           echo "Waiting for Kafka to be healthy..."
-          timeout 90 bash -c 'until docker inspect kafka --format="{{.State.Health.Status}}" | grep healthy; do sleep 5; done'
+          timeout 180 bash -c 'until docker inspect kafka --format="{{.State.Health.Status}}" | grep -x healthy; do sleep 5; done'
+          echo "Waiting for kafka-init to finish topic creation..."
+          timeout 60 bash -c 'until [ "$(docker inspect kafka-init --format="{{.State.Status}}" 2>/dev/null)" = "exited" ]; do sleep 3; done' || true
 
       - name: Run event tests
         env:

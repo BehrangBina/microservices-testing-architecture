@@ -6,6 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <RootNamespace>ContractTests</RootNamespace>
+    <!-- Required so PactNet 5.x native Rust FFI libraries (libpact_ffi) are
+         copied to the output directory on every target OS. Without this,
+         dotnet test on Linux omits the runtimes/linux-x64/native assets and
+         the Rust-based verifier throws a DllNotFoundException. -->
+    <RuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
