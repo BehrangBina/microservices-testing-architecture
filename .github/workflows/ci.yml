@@ -252,7 +252,7 @@ jobs:
       - name: Start Kafka only
         run: |
           docker compose -f infra/docker-compose.yml up -d kafka kafka-init
-          echo "Waiting for Kafka internal listener (port 9092) to be healthy..."
+          echo "Waiting for Kafka port 9092 (TCP) to become healthy..."
           if ! timeout 240 bash -c 'until docker inspect kafka --format="{{.State.Health.Status}}" | grep -x healthy; do
             echo "  kafka health: $(docker inspect kafka --format={{.State.Health.Status}} 2>/dev/null)";
             sleep 5;
@@ -261,6 +261,11 @@ jobs:
             docker logs kafka
             exit 1
           fi
+          echo "Verifying Kafka broker is accepting API requests..."
+          timeout 120 bash -c 'until docker exec kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list > /dev/null 2>&1; do
+            echo "  Kafka API not ready yet...";
+            sleep 5;
+          done'
           echo "Waiting for Kafka external listener (port 9094) to accept connections..."
           timeout 60 bash -c 'until nc -z localhost 9094; do sleep 3; done'
           echo "Waiting for kafka-init to finish topic creation..."
