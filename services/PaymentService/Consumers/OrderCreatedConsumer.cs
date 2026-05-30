@@ -47,6 +47,7 @@ public class OrderCreatedConsumer : BackgroundService
         consumer.Subscribe(Topic);
 
         _logger.LogInformation("OrderCreatedConsumer started, listening on topic {Topic}", Topic);
+        await Task.Yield();
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -64,6 +65,7 @@ public class OrderCreatedConsumer : BackgroundService
             catch (ConsumeException ex)
             {
                 _logger.LogError(ex, "Kafka consume error");
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
             }
         }
 

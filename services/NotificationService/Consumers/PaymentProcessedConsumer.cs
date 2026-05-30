@@ -34,6 +34,7 @@ public class PaymentProcessedConsumer : BackgroundService
         consumer.Subscribe(Topic);
 
         _logger.LogInformation("NotificationService PaymentProcessedConsumer started");
+        await Task.Yield();
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -61,6 +62,7 @@ public class PaymentProcessedConsumer : BackgroundService
             catch (ConsumeException ex)
             {
                 _logger.LogError(ex, "Kafka consume error in PaymentProcessedConsumer");
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
             }
         }
 
