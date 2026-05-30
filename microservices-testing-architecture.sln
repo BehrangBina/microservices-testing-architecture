@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.8.34330.188
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11822.322 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{11111111-0000-0000-0000-000000000001}"
 EndProject
@@ -24,6 +24,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "tests\IntegrationTests\IntegrationTests.csproj", "{BBBBBBBB-0000-0000-0000-000000000004}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E2eTests", "tests\E2eTests\E2eTests.csproj", "{BBBBBBBB-0000-0000-0000-000000000005}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E1FEB29D-8C50-4771-A664-5CC673DFC293}"
+	ProjectSection(SolutionItems) = preProject
+		log.txt = log.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -157,5 +162,8 @@ Global
 		{BBBBBBBB-0000-0000-0000-000000000003} = {11111111-0000-0000-0000-000000000002}
 		{BBBBBBBB-0000-0000-0000-000000000004} = {11111111-0000-0000-0000-000000000002}
 		{BBBBBBBB-0000-0000-0000-000000000005} = {11111111-0000-0000-0000-000000000002}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5475C3C0-AF8C-4502-8682-07CB03166ADB}
 	EndGlobalSection
 EndGlobal

@@ -48,6 +48,21 @@ services:
       retries: 40
       start_period: 20s
 
+  # ─── SQL Server database initialiser (runs once then exits) ──────────────────
+  sqlserver-init:
+    image: mcr.microsoft.com/mssql-tools:latest
+    container_name: sqlserver-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "-c"]
+    command: >
+      "/opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P 'Your_password123!' -i /scripts/init-db.sql &&
+       echo 'SQL Server databases initialised.'"
+    volumes:
+      - ./sqlserver/init-db.sql:/scripts/init-db.sql
+    restart: "no"
+
   # ─── Kafka topic initialiser (runs once then exits) ────────────────────────────
   kafka-init:
     image: apache/kafka:3.9.0
@@ -74,8 +89,8 @@ services:
     ports:
       - "5001:8080"
     depends_on:
-      sqlserver:
-        condition: service_healthy
+      sqlserver-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/swagger/index.html"]
       interval: 10s
@@ -94,8 +109,8 @@ services:
     ports:
       - "5002:8080"
     depends_on:
-      sqlserver:
-        condition: service_healthy
+      sqlserver-init:
+        condition: service_completed_successfully
       kafka:
         condition: service_healthy
     healthcheck:
@@ -116,15 +131,15 @@ services:
     ports:
       - "5003:8080"
     depends_on:
-      sqlserver:
-        condition: service_healthy
+      sqlserver-init:
+        condition: service_completed_successfully
       kafka:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/swagger/index.html"]
       interval: 10s
-      retries: 5
-      start_period: 20s
+      retries: 12
+      start_period: 60s
 
   notification-service:
     build:
@@ -138,15 +153,15 @@ services:
     ports:
       - "5004:8080"
     depends_on:
-      sqlserver:
-        condition: service_healthy
+      sqlserver-init:
+        condition: service_completed_successfully
       kafka:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/swagger/index.html"]
       interval: 10s
-      retries: 5
-      start_period: 20s
+      retries: 12
+      start_period: 60s
 
 volumes:
   sqlserver_data:
