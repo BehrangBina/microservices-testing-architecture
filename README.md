@@ -1,119 +1,109 @@
 # Microservices Testing Architecture
 
-A production-grade QE portfolio project demonstrating **Practice Lead / Test Architect** capabilities across every layer of the testing pyramid — built on C# .NET 8, Kafka, SQL Server, and GitHub Actions CI.
+A .NET 8 microservices reference project focused on end-to-end quality engineering:
+
+- Event-driven services with Kafka
+- Service-owned SQL databases
+- Multi-layer automated test strategy
+- CI quality gates in GitHub Actions
 
 ---
 
-## What's Inside
+## Architecture at a glance
 
-| Layer | Technology | Location |
+| Service | Port | Role |
+|---|---:|---|
+| UserService | 5001 | User APIs |
+| OrderService | 5002 | Order APIs + publishes `order-created` |
+| PaymentService | 5003 | Consumes `order-created`, publishes `payment-processed` |
+| NotificationService | 5004 | Consumes both topics, stores notification log |
+
+Event flow:
+
+`POST /orders` → `order-created` → PaymentService → `payment-processed` → NotificationService
+
+---
+
+## Testing coverage
+
+| Layer | Purpose | Location |
 |---|---|---|
-| Microservices (4) | ASP.NET Core 8, EF Core, SQL Server | `services/` |
-| API Tests | RestSharp + xUnit + FluentAssertions | `tests/ApiTests/` |
-| Contract Tests | Pact.NET 5.x (consumer-driven, file-based) | `tests/ContractTests/` |
-| Event-Driven Tests | Confluent.Kafka + NJsonSchema | `tests/EventTests/` |
-| Integration Tests | Testcontainers.MsSql + WebApplicationFactory | `tests/IntegrationTests/` |
-| E2E Tests | Playwright API context + polling assertions | `tests/E2eTests/` |
-| Infrastructure | Docker Compose, Kafka KRaft, SQL Server 2022 | `infra/` |
-| CI/CD | GitHub Actions (6-job pipeline with quality gates) | `.github/workflows/ci.yml` |
-| Documentation | Strategy, playbooks, architecture diagrams | `docs/` |
+| Contract Tests | Consumer/provider contract validation | `tests/ContractTests/` |
+| API Tests | Endpoint behavior and response assertions | `tests/ApiTests/` |
+| Integration Tests | Service + DB integration with Testcontainers | `tests/IntegrationTests/` |
+| Event Tests | Kafka event shape, keys, schema checks | `tests/EventTests/` |
+| E2E Tests | Full workflow verification across services | `tests/E2eTests/` |
 
 ---
 
-## Services
+## CI quality gates
 
-```
-UserService        :5001   CRUD /users
-OrderService       :5002   CRUD /orders + publishes OrderCreated → Kafka
-PaymentService     :5003   GET /payments + consumes OrderCreated → publishes PaymentProcessed
-NotificationService :5004  GET /notifications + consumes both Kafka topics
+Pipeline file: `.github/workflows/ci.yml`
+
+```text
+build
+ ├─ contract-tests
+ ├─ api-tests
+ ├─ integration-tests
+ └─ event-tests
+      └─ e2e-tests
 ```
 
-Event flow: `POST /orders` → `order-created` topic → PaymentService → `payment-processed` topic → NotificationService
+`e2e-tests` runs only after all earlier layers pass.
 
 ---
 
-## Quick Start
+## Quick start
 
 ### Prerequisites
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-### Run the full stack
+- .NET 8 SDK
+- Docker + Docker Compose v2
+
+### Run full stack
 
 ```bash
 docker compose -f infra/docker-compose.yml up --build
 ```
 
-Services available at:
-- UserService → http://localhost:5001/swagger
-- OrderService → http://localhost:5002/swagger
-- PaymentService → http://localhost:5003/swagger
-- NotificationService → http://localhost:5004/swagger
+Swagger:
+
+- http://localhost:5001/swagger
+- http://localhost:5002/swagger
+- http://localhost:5003/swagger
+- http://localhost:5004/swagger
 
 ### Run tests
 
 ```bash
-# Contract tests (no external dependencies)
 dotnet test tests/ContractTests/ContractTests.csproj
-
-# Integration tests (Testcontainers spins SQL Server automatically)
 dotnet test tests/IntegrationTests/IntegrationTests.csproj
-
-# API tests (requires docker-compose stack running)
 dotnet test tests/ApiTests/ApiTests.csproj
 
-# Event tests (requires Kafka — start with docker compose)
 docker compose -f infra/docker-compose.yml up -d kafka kafka-init
 KAFKA_BOOTSTRAP_SERVERS=localhost:9094 dotnet test tests/EventTests/EventTests.csproj
 
-# E2E tests (requires full docker-compose stack)
 docker compose -f infra/docker-compose.yml up -d
 dotnet test tests/E2eTests/E2eTests.csproj
 ```
 
 ---
 
-## CI/CD Pipeline
+## Repository map
 
-The GitHub Actions pipeline enforces a strict quality gate order:
-
-```
-build ──► contract-tests ──┐
-      ──► api-tests        ├──► e2e-tests ──► (deploy)
-      ──► integration-tests┤
-      ──► event-tests ─────┘
-```
-
-E2E tests only run after **all** preceding test layers pass.
-
----
-
-## Documentation
-
-| Document | Description |
+| Path | Description |
 |---|---|
-| [Testing Strategy](docs/testing-strategy.md) | Testing pyramid, layer ownership, quality gates, technology decisions |
-| [Contract Testing Playbook](docs/contract-testing-playbook.md) | How to run, add, and maintain Pact contracts |
-| [Event-Driven Testing Guide](docs/event-driven-testing.md) | Kafka patterns, schema validation, consumer isolation, anti-patterns |
-| [Architecture Diagram](docs/architecture-diagram.md) | Mermaid diagrams — services, topics, DBs, test layer overlay, CI flow |
+| `services/` | Microservice source code |
+| `tests/` | Automated tests by layer |
+| `infra/` | Compose stack, Kafka topic init, SQL init |
+| `.github/workflows/` | CI pipelines and quality gates |
+| `docs/` | Detailed architecture and testing guides |
 
 ---
 
-## Key Design Decisions
+## Documentation index
 
-- **Confluent.Kafka directly** (not MassTransit) — demonstrates low-level Kafka understanding
-- **Pact file-based** (no broker) — pact JSONs committed to repo as living contract artifacts
-- **Testcontainers** — integration tests are fully self-contained; no shared database
-- **Playwright API context** — showcases Playwright for non-browser async workflow assertions
-- **EnsureCreated()** over migrations — pragmatic for demo; production would use a proper migration pipeline
-
----
-
-## Requirements
-
-| Tool | Version |
-|---|---|
-| .NET SDK | 8.0 |
-| Docker | 24+ |
-| Docker Compose | v2 |
+- [Testing Strategy](docs/testing-strategy.md)
+- [Contract Testing Playbook](docs/contract-testing-playbook.md)
+- [Event-Driven Testing Guide](docs/event-driven-testing.md)
+- [Architecture Diagram](docs/architecture-diagram.md)
