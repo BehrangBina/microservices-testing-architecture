@@ -38,12 +38,6 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore dependencies
-        run: dotnet restore microservices-testing-architecture.sln
-
-      - name: Build (Release)
-        run: dotnet build microservices-testing-architecture.sln -c Release --no-restore
-
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -51,6 +45,12 @@ jobs:
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             nuget-${{ runner.os }}-
+
+      - name: Restore dependencies
+        run: dotnet restore microservices-testing-architecture.sln
+
+      - name: Build (Release)
+        run: dotnet build microservices-testing-architecture.sln -c Release --no-restore
 
   # ════════════════════════════════════════════════════════
   #  JOB 2 — Contract Tests (no external dependencies)
@@ -232,6 +232,7 @@ jobs:
     name: Event Tests (Kafka)
     runs-on: ubuntu-latest
     needs: build
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -240,13 +241,24 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Restore NuGet cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
       - name: Start Kafka only
         run: |
           docker compose -f infra/docker-compose.yml up -d kafka kafka-init
-          echo "Waiting for Kafka to be healthy..."
+          echo "Waiting for Kafka internal listener (port 9092) to be healthy..."
           timeout 180 bash -c 'until docker inspect kafka --format="{{.State.Health.Status}}" | grep -x healthy; do sleep 5; done'
+          echo "Waiting for Kafka external listener (port 9094) to accept connections..."
+          timeout 60 bash -c 'until nc -z localhost 9094; do sleep 3; done'
           echo "Waiting for kafka-init to finish topic creation..."
-          timeout 60 bash -c 'until [ "$(docker inspect kafka-init --format="{{.State.Status}}" 2>/dev/null)" = "exited" ]; do sleep 3; done' || true
+          timeout 60 bash -c 'until [ "$(docker inspect kafka-init --format {{.State.Status}} 2>/dev/null)" = "exited" ]; do sleep 3; done' || true
+          echo "Kafka is ready."
 
       - name: Run event tests
         env:
@@ -255,6 +267,13 @@ jobs:
                --logger "trx;LogFileName=event-results.trx"
                --results-directory ./test-results/event
                -c Release
+
+      - name: Dump Kafka logs on failure
+        if: failure()
+        run: |
+          docker compose -f infra/docker-compose.yml ps
+          docker compose -f infra/docker-compose.yml logs kafka
+          docker compose -f infra/docker-compose.yml logs kafka-init
 
       - name: Stop Kafka
         if: always()
