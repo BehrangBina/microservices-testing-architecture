@@ -45,7 +45,7 @@ public class OrderCreatedConsumer : BackgroundService
                 if (result is null) continue;
 
                 var payload = JsonSerializer.Deserialize<JsonElement>(result.Message.Value);
-                var orderId = payload.TryGetProperty("orderId", out var prop) ? prop.GetGuid() : (Guid?)null;
+                var orderId = TryGetOrderId(payload);
 
                 using var scope = _scopeFactory.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
@@ -68,5 +68,45 @@ public class OrderCreatedConsumer : BackgroundService
         }
 
         consumer.Close();
+    }
+
+    private static Guid? TryGetOrderId(JsonElement payload)
+    {
+        if (TryReadGuid(payload, "orderId", out var guid) || TryReadGuid(payload, "OrderId", out guid))
+        {
+            return guid;
+        }
+
+        return null;
+    }
+
+    private static bool TryReadGuid(JsonElement payload, string propertyName, out Guid value)
+    {
+        value = Guid.Empty;
+
+        if (!payload.TryGetProperty(propertyName, out var prop))
+        {
+            return false;
+        }
+
+        if (prop.ValueKind == JsonValueKind.String)
+        {
+            return Guid.TryParse(prop.GetString(), out value);
+        }
+
+        if (prop.ValueKind == JsonValueKind.Null)
+        {
+            return false;
+        }
+
+        try
+        {
+            value = prop.GetGuid();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
