@@ -2,7 +2,7 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, reports]
   pull_request:
     branches: [main]
   workflow_dispatch:  # Allow manual trigger
@@ -70,6 +70,8 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Run consumer tests (generates pact JSON)
+        env:
+          ALLURE_CONFIG: ${{ github.workspace }}/allureConfig.json
         run: dotnet test tests/ContractTests/ContractTests.csproj
                --filter "FullyQualifiedName~Consumer"
                --logger "trx;LogFileName=consumer-results.trx"
@@ -78,6 +80,8 @@ jobs:
                -c Release
 
       - name: Run provider verification (reads pact JSON)
+        env:
+          ALLURE_CONFIG: ${{ github.workspace }}/allureConfig.json
         run: dotnet test tests/ContractTests/ContractTests.csproj
                --filter "FullyQualifiedName~Provider"
                --logger "trx;LogFileName=provider-results.trx"
@@ -99,6 +103,13 @@ jobs:
         with:
           name: contract-coverage
           path: ./test-results/contract/**/coverage.cobertura.xml
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-allure-results
+          path: ./allure-results/**
 
       - name: Publish test summary
         if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
@@ -164,6 +175,7 @@ jobs:
           ORDER_SERVICE_URL:   http://localhost:5002
           PAYMENT_SERVICE_URL: http://localhost:5003
           NOTIFY_SERVICE_URL:  http://localhost:5004
+          ALLURE_CONFIG: ${{ github.workspace }}/allureConfig.json
         run: dotnet test tests/ApiTests/ApiTests.csproj
                --logger "trx;LogFileName=api-results.trx"
                --results-directory ./test-results/api
@@ -194,6 +206,13 @@ jobs:
           name: api-coverage
           path: ./test-results/api/**/coverage.cobertura.xml
 
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-allure-results
+          path: ./allure-results/**
+
       - name: Publish test summary
         if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: dorny/test-reporter@v1
@@ -220,6 +239,8 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Run integration tests
+        env:
+          ALLURE_CONFIG: ${{ github.workspace }}/allureConfig.json
         run: dotnet test tests/IntegrationTests/IntegrationTests.csproj
                --logger "trx;LogFileName=integration-results.trx"
                --results-directory ./test-results/integration
@@ -239,6 +260,13 @@ jobs:
         with:
           name: integration-coverage
           path: ./test-results/integration/**/coverage.cobertura.xml
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-allure-results
+          path: ./allure-results/**
 
       - name: Publish test summary
         if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
@@ -299,6 +327,7 @@ jobs:
       - name: Run event tests
         env:
           KAFKA_BOOTSTRAP_SERVERS: localhost:9094
+          ALLURE_CONFIG: ${{ github.workspace }}/allureConfig.json
         run: dotnet test tests/EventTests/EventTests.csproj
                --logger "trx;LogFileName=event-results.trx"
                --results-directory ./test-results/event
@@ -329,6 +358,13 @@ jobs:
         with:
           name: event-coverage
           path: ./test-results/event/**/coverage.cobertura.xml
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: event-allure-results
+          path: ./allure-results/**
 
       - name: Publish test summary
         if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
@@ -400,6 +436,7 @@ jobs:
           ORDER_SERVICE_URL:   http://localhost:5002
           PAYMENT_SERVICE_URL: http://localhost:5003
           NOTIFY_SERVICE_URL:  http://localhost:5004
+          ALLURE_CONFIG: ${{ github.workspace }}/allureConfig.json
         run: dotnet test tests/E2eTests/E2eTests.csproj
                --logger "trx;LogFileName=e2e-results.trx"
                --results-directory ./test-results/e2e
@@ -428,6 +465,13 @@ jobs:
           name: e2e-coverage
           path: ./test-results/e2e/**/coverage.cobertura.xml
 
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-allure-results
+          path: ./allure-results/**
+
       - name: Publish test summary
         if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: dorny/test-reporter@v1
@@ -446,6 +490,9 @@ jobs:
     needs: [contract-tests, api-tests, integration-tests, event-tests, e2e-tests]
     if: always()
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Download all coverage artifacts
         uses: actions/download-artifact@v4
         with:
@@ -470,3 +517,62 @@ jobs:
         with:
           name: coverage-html-report
           path: ./coverage-report
+
+  # ════════════════════════════════════════════════════════
+  #  JOB 8 — Allure Report (aggregate raw allure-results)
+  # ════════════════════════════════════════════════════════
+  allure-report:
+    name: Allure Report
+    runs-on: ubuntu-latest
+    needs: [contract-tests, api-tests, integration-tests, event-tests, e2e-tests, coverage-report]
+    if: always()
+    steps:
+      - name: Download Allure result artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*-allure-results"
+          merge-multiple: true
+          path: ./allure-results
+
+      - name: Download merged coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-html-report
+          path: ./coverage-report-input
+
+      - name: Inject coverage metrics into Allure environment
+        shell: bash
+        run: |
+          python - << 'PY'
+          import os
+          import xml.etree.ElementTree as ET
+
+          cobertura_path = './coverage-report-input/Cobertura.xml'
+          if not os.path.exists(cobertura_path):
+              raise SystemExit(f'Missing Cobertura.xml at {cobertura_path}')
+
+          root = ET.parse(cobertura_path).getroot()
+          line_rate = float(root.attrib.get('line-rate', '0')) * 100
+          branch_rate = float(root.attrib.get('branch-rate', '0')) * 100
+
+          os.makedirs('./allure-results', exist_ok=True)
+          with open('./allure-results/environment.properties', 'w', encoding='utf-8') as f:
+              f.write(f'Coverage.Line={line_rate:.2f}%\\n')
+              f.write(f'Coverage.Branch={branch_rate:.2f}%\\n')
+          PY
+
+      - name: Install Allure CLI
+        run: |
+          curl -sLo allure.tgz https://github.com/allure-framework/allure2/releases/download/2.35.1/allure-2.35.1.tgz
+          mkdir -p allure-cli
+          tar -xzf allure.tgz -C allure-cli --strip-components=1
+
+      - name: Generate Allure report
+        run: ./allure-cli/bin/allure generate ./allure-results -o ./allure-report --clean
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: ./allure-report
