@@ -74,6 +74,7 @@ jobs:
                --filter "FullyQualifiedName~Consumer"
                --logger "trx;LogFileName=consumer-results.trx"
                --results-directory ./test-results/contract
+               --collect "XPlat Code Coverage"
                -c Release
 
       - name: Run provider verification (reads pact JSON)
@@ -81,6 +82,7 @@ jobs:
                --filter "FullyQualifiedName~Provider"
                --logger "trx;LogFileName=provider-results.trx"
                --results-directory ./test-results/contract
+               --collect "XPlat Code Coverage"
                -c Release
                --no-build
 
@@ -90,6 +92,13 @@ jobs:
         with:
           name: contract-test-results
           path: ./test-results/contract/*.trx
+
+      - name: Upload coverage results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-coverage
+          path: ./test-results/contract/**/coverage.cobertura.xml
 
       - name: Publish test summary
         if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
@@ -158,6 +167,7 @@ jobs:
         run: dotnet test tests/ApiTests/ApiTests.csproj
                --logger "trx;LogFileName=api-results.trx"
                --results-directory ./test-results/api
+               --collect "XPlat Code Coverage"
                -c Release
 
       - name: Dump service logs on failure
@@ -176,6 +186,13 @@ jobs:
         with:
           name: api-test-results
           path: ./test-results/api/*.trx
+
+      - name: Upload coverage results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-coverage
+          path: ./test-results/api/**/coverage.cobertura.xml
 
       - name: Publish test summary
         if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
@@ -206,6 +223,7 @@ jobs:
         run: dotnet test tests/IntegrationTests/IntegrationTests.csproj
                --logger "trx;LogFileName=integration-results.trx"
                --results-directory ./test-results/integration
+               --collect "XPlat Code Coverage"
                -c Release
 
       - name: Upload test results
@@ -214,6 +232,13 @@ jobs:
         with:
           name: integration-test-results
           path: ./test-results/integration/*.trx
+
+      - name: Upload coverage results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-coverage
+          path: ./test-results/integration/**/coverage.cobertura.xml
 
       - name: Publish test summary
         if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
@@ -277,6 +302,7 @@ jobs:
         run: dotnet test tests/EventTests/EventTests.csproj
                --logger "trx;LogFileName=event-results.trx"
                --results-directory ./test-results/event
+               --collect "XPlat Code Coverage"
                -c Release
 
       - name: Dump Kafka logs on failure
@@ -296,6 +322,13 @@ jobs:
         with:
           name: event-test-results
           path: ./test-results/event/*.trx
+
+      - name: Upload coverage results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: event-coverage
+          path: ./test-results/event/**/coverage.cobertura.xml
 
       - name: Publish test summary
         if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
@@ -370,6 +403,7 @@ jobs:
         run: dotnet test tests/E2eTests/E2eTests.csproj
                --logger "trx;LogFileName=e2e-results.trx"
                --results-directory ./test-results/e2e
+               --collect "XPlat Code Coverage"
                -c Release
 
       - name: Dump all service logs on failure
@@ -387,6 +421,13 @@ jobs:
           name: e2e-test-results
           path: ./test-results/e2e/*.trx
 
+      - name: Upload coverage results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-coverage
+          path: ./test-results/e2e/**/coverage.cobertura.xml
+
       - name: Publish test summary
         if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: dorny/test-reporter@v1
@@ -395,3 +436,37 @@ jobs:
           path: ./test-results/e2e/*.trx
           reporter: dotnet-trx
           fail-on-empty: false
+
+  # ════════════════════════════════════════════════════════
+  #  JOB 7 — Coverage Report (aggregate + HTML artifact)
+  # ════════════════════════════════════════════════════════
+  coverage-report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: [contract-tests, api-tests, integration-tests, event-tests, e2e-tests]
+    if: always()
+    steps:
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*-coverage"
+          merge-multiple: true
+          path: ./coverage-input
+
+      - name: Generate merged coverage report
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.2.4
+        with:
+          reports: ./coverage-input/**/coverage.cobertura.xml
+          targetdir: ./coverage-report
+          reporttypes: Html;MarkdownSummaryGithub;Cobertura
+
+      - name: Publish coverage summary
+        if: always()
+        run: cat ./coverage-report/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-report
+          path: ./coverage-report
