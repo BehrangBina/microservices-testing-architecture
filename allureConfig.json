@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/allure-framework/allure-csharp/master/Allure.Net.Commons/Schemas/allureConfig.schema.json",
+  "allure": {
+    "directory": "allure-results",
+    "links": [
+      "https://github.com/{owner}/{repo}/issues/{issue}",
+      "https://github.com/{owner}/{repo}/pull/{tms}"
+    ]
+  }
+}
